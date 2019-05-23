@@ -1,0 +1,23 @@
+{
+  "name": "webpencoder",
+  "version": "1.0.0",
+  "description": "encode webp with pure javascript",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/af-inet/WebpEncoder.js.git"
+  },
+  "keywords": [
+    "webp",
+    "encode"
+  ],
+  "author": "David Hargat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/af-inet/WebpEncoder.js/issues"
+  },
+  "homepage": "https://github.com/af-inet/WebpEncoder.js#readme"
+}
