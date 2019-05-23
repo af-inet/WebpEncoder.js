@@ -29,7 +29,7 @@ struct WebpEncoder *WebpEncoder_free(struct WebpEncoder *encoder)
 {
     if (encoder)
     {
-        WebPDataClear(&webp_data);
+        WebPDataClear(&encoder->webp_data);
         WebPAnimEncoderDelete(encoder->enc);
         WebPPictureFree(&encoder->frame);
         free(encoder);
