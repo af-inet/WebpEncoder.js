@@ -50,7 +50,7 @@ WebpEncoder.prototype.export = function () {
         throw new Error('_WebpEncoder_encode failed');
     }
     var outputSize = M._WebpEncoder_size(this._encoder);
-    var data = M.HEAP8.subarray(output, output + outputSize);
+    var data = new Uint8Array(M.HEAP8.subarray(output, output + outputSize));
     M._WebpEncoder_free(this._encoder);
     this.done = true;
     return data;
