@@ -1,11 +1,11 @@
-var _WebpEncoder = require('./build/WebpEncoder.js');
+var M = require('./build/WebpEncoder.js');
 
 function Malloc(data) {
-    var ptr = _WebpEncoder._malloc(data.length);
+    var ptr = M._malloc(data.length);
     if (!ptr) {
         throw new Error("_malloc failed");
     }
-    _WebpEncoder.HEAP8.set(data, ptr);
+    M.HEAP8.set(data, ptr);
     return ptr
 }
 
@@ -16,7 +16,7 @@ function WebpEncoder(width, height) {
     this.width = width;
     this.height = height;
     this.done = false;
-    this._encoder = _WebpEncoder._WebpEncoder_alloc(width, height);
+    this._encoder = M._WebpEncoder_alloc(width, height);
     if (!this._encoder) {
         throw new Error('_WebpEncoder_allocx failed');
     }
@@ -34,7 +34,7 @@ WebpEncoder.prototype.addFrame = function (data, duration) {
         throw new Error('unexpected frame size ' + data.length.toString() + ' != ' + expected.toString());
     }
     var ptr = Malloc(data)
-    var ok = _WebpEncoder._WebpEncoder_add(this._encoder, ptr, duration);
+    var ok = M._WebpEncoder_add(this._encoder, ptr, duration);
     if (ok != 0) {
         throw new Error('_WebpEncoder_add failed');
     }
@@ -44,13 +44,13 @@ WebpEncoder.prototype.export = function () {
     if (this.done) {
         throw new Error("export() may only be called once")
     }
-    var output = _WebpEncoder._WebpEncoder_encode(this._encoder);
+    var output = M._WebpEncoder_encode(this._encoder);
     if (!output) {
         throw new Error('_WebpEncoder_encode failed');
     }
-    var outputSize = _WebpEncoder._WebpEncoder_size(this._encoder);
-    var data = _WebpEncoder.HEAP8.subarray(output, output + outputSize);
-    _WebpEncoder._WebpEncoder_free(this._encoder);
+    var outputSize = M._WebpEncoder_size(this._encoder);
+    var data = M.HEAP8.subarray(output, output + outputSize);
+    M._WebpEncoder_free(this._encoder);
     this.done = true;
     return data;
 }
