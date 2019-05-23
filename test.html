@@ -1,0 +1,39 @@
+
+<script src="./build/WebpEncoder.js"></script>
+<script>
+  function Alloc(data) {
+    var ptr = Module._malloc(data.length)
+    Module.HEAP8.set(data, ptr);
+    return ptr
+  }
+  function Read(ptr, length) {
+    return Module.HEAP8.subarray(ptr, ptr+length)
+  }
+  Module.onRuntimeInitialized = async _ => {
+    var width = 2;
+    var height = 2;
+    var frameSize = width * height * 4
+    // frame data (4 red pixels)
+    var data1 = Alloc([
+      255, 0, 0, 255,
+      255, 0, 0, 255,
+      255, 0, 0, 255,
+      255, 0, 0, 255
+    ])
+    var data2 = Alloc([
+      255, 255, 0, 255,
+      255, 255, 0, 255,
+      255, 255, 0, 255,
+      255, 255, 0, 255
+    ])
+    var output = Alloc(new Uint8Array(frameSize))
+    var encoder = Module._WebpEncoder_alloc(width, height)
+    Module._WebpEncoder_add(encoder, data1, 1000)
+    Module._WebpEncoder_add(encoder, data2, 1000)
+    console.log(Read(output, frameSize))
+    var output = Module._WebpEncoder_encode(encoder)
+    var outputSize = Module._WebpEncoder_size(encoder)
+    console.log("output", output)
+    console.log("size", outputSize)
+  };
+</script>
