@@ -35,6 +35,7 @@ WebpEncoder.prototype.addFrame = function (data, duration) {
     }
     var ptr = Malloc(data)
     var ok = M._WebpEncoder_add(this._encoder, ptr, duration);
+    M._free(ptr);
     if (ok != 0) {
         throw new Error('_WebpEncoder_add failed');
     }
