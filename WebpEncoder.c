@@ -29,6 +29,7 @@ struct WebpEncoder *WebpEncoder_free(struct WebpEncoder *encoder)
 {
     if (encoder)
     {
+        WebPDataClear(&webp_data);
         WebPAnimEncoderDelete(encoder->enc);
         WebPPictureFree(&encoder->frame);
         free(encoder);
@@ -95,7 +96,7 @@ struct WebpEncoder *WebpEncoder_alloc(int width, int height)
 EMSCRIPTEN_KEEPALIVE
 int WebpEncoder_add(struct WebpEncoder *encoder, uint8_t *data, int duration)
 {
-    WebPPictureImportRGBA(&encoder->frame, data, encoder->width);
+    WebPPictureImportRGBA(&encoder->frame, data, encoder->width * 4);
     if (!WebPAnimEncoderAdd(encoder->enc, &encoder->frame, encoder->frame_timestamp, &encoder->config))
     {
         fprintf(stderr, "Error while adding frame #%d: %s\n", encoder->frame_counter,
