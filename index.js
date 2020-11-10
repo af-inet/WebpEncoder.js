@@ -1,4 +1,4 @@
-var M_Promise = require("./build/WebpEncoder.js")();
+var M_Promise = require('./build/WebpEncoder.js')()
 
 /**
  * @typedef {Object} WebPConfig
@@ -32,106 +32,106 @@ var M_Promise = require("./build/WebpEncoder.js")();
  */
 
 class WebpEncoder {
-  constructor(width, height, M) {
-    if (typeof width !== "number" || typeof height !== "number") {
-      throw new Error("width or height arguments are not number");
-    }
-    this.M = M;
-    this.width = width;
-    this.height = height;
-    this.done = false;
-    this._encoder = this.M._WebpEncoder_alloc(width, height);
-    if (!this._encoder) {
-      throw new Error("WebpEncoder_allocx failed");
-    }
-  }
+	constructor(width, height, M) {
+		if (typeof width !== 'number' || typeof height !== 'number') {
+			throw new Error('width or height arguments are not number')
+		}
+		this.M = M
+		this.width = width
+		this.height = height
+		this.done = false
+		this._encoder = this.M._WebpEncoder_alloc(width, height)
+		if (!this._encoder) {
+			throw new Error('WebpEncoder_allocx failed')
+		}
+	}
 
-  Malloc(data) {
-    var ptr = this.M._malloc(data.length);
-    if (!ptr) {
-      throw new Error("_malloc failed");
-    }
-    this.M.HEAP8.set(data, ptr);
-    return ptr;
-  }
+	Malloc(data) {
+		var ptr = this.M._malloc(data.length)
+		if (!ptr) {
+			throw new Error('_malloc failed')
+		}
+		this.M.HEAP8.set(data, ptr)
+		return ptr
+	}
 
-  /**
-   * @returns {WebPConfig}
-   */
-  createConfig() {
-    return this.M.CreateWebPConfig();
-  }
+	/**
+	 * @returns {WebPConfig}
+	 */
+	createConfig() {
+		return this.M.CreateWebPConfig()
+	}
 
-  /**
-   * @param {WebPConfig} config 
-   */
-  setConfig(config) {
-    var ok = this.M.WebpEncoder_config(this._encoder, config);
-    if (!ok) {
-      throw new Error("_WebpEncoder_add failed");
-    }
-  }
+	/**
+	 * @param {WebPConfig} config
+	 */
+	setConfig(config) {
+		var ok = this.M.WebpEncoder_config(this._encoder, config)
+		if (!ok) {
+			throw new Error('_WebpEncoder_add failed')
+		}
+	}
 
-  addFrame(data, duration) {
-    if (typeof duration !== "number") {
-      throw new Error("duration argument is not a number");
-    }
-    if (this.done) {
-      throw new Error("addFrame() may not be called after export()");
-    }
-    var expected = this.width * this.height * 4;
-    if (data.length != expected) {
-      throw new Error(
-        "unexpected frame size " +
-          data.length.toString() +
-          " != " +
-          expected.toString()
-      );
-    }
-    var ptr = this.Malloc(data);
-    var ok = this.M._WebpEncoder_add(this._encoder, ptr, duration);
-    this.M._free(ptr);
-    if (ok != 0) {
-      throw new Error("_WebpEncoder_add failed");
-    }
-  }
+	addFrame(data, duration) {
+		if (typeof duration !== 'number') {
+			throw new Error('duration argument is not a number')
+		}
+		if (this.done) {
+			throw new Error('addFrame() may not be called after export()')
+		}
+		var expected = this.width * this.height * 4
+		if (data.length != expected) {
+			throw new Error(
+				'unexpected frame size ' +
+					data.length.toString() +
+					' != ' +
+					expected.toString()
+			)
+		}
+		var ptr = this.Malloc(data)
+		var ok = this.M._WebpEncoder_add(this._encoder, ptr, duration)
+		this.M._free(ptr)
+		if (ok != 0) {
+			throw new Error('_WebpEncoder_add failed')
+		}
+	}
 
-  export() {
-    if (this.done) {
-      throw new Error("export() may only be called once");
-    }
-    var output = this.M._WebpEncoder_encode(this._encoder);
-    if (!output) {
-      throw new Error("_WebpEncoder_encode failed");
-    }
-    var outputSize = this.M._WebpEncoder_size(this._encoder);
-    var data = new Uint8Array(
-      this.M.HEAP8.subarray(output, output + outputSize)
-    );
-    this.M._WebpEncoder_free(this._encoder);
-    this.done = true;
-    return data;
-  }
+	export() {
+		if (this.done) {
+			throw new Error('export() may only be called once')
+		}
+		var output = this.M._WebpEncoder_encode(this._encoder)
+		if (!output) {
+			throw new Error('_WebpEncoder_encode failed')
+		}
+		var outputSize = this.M._WebpEncoder_size(this._encoder)
+		var data = new Uint8Array(
+			this.M.HEAP8.subarray(output, output + outputSize)
+		)
+		this.M._WebpEncoder_free(this._encoder)
+		this.done = true
+		return data
+	}
 }
 
 /**
  * @param {loadModule~createEncoder}
  */
 function loadModule(M) {
-  /**
-   * @param {number} width
-   * @param {number} height
-   * @returns {WebpEncoder}
-   */
-  function createEncoder(width, height) {
-    return new WebpEncoder(width, height, M);
-  }
-  return createEncoder;
+	/**
+	 * @param {number} width
+	 * @param {number} height
+	 * @returns {WebpEncoder}
+	 */
+	function createEncoder(width, height) {
+		return new WebpEncoder(width, height, M)
+	}
+	return createEncoder
 }
 
 /**
  * @type {Promise<function(): WebpEncoder>}
  */
-const promise = M_Promise.then(loadModule);
+const promise = M_Promise.then(loadModule)
 
-module.exports = promise;
+module.exports = promise

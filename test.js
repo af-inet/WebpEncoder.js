@@ -1,38 +1,38 @@
-var fs = require("fs");
-var WebpEncoder_Promise = require("./index.js");
+var fs = require('fs')
+var WebpEncoder_Promise = require('./index.js')
 
 WebpEncoder_Promise.then(function (CreateWebpEncoder) {
-  var width = 100;
-  var height = 100;
+	var width = 100
+	var height = 100
 
-  var start = new Date().getTime();
-  var encoder = CreateWebpEncoder(width, height);
+	var start = new Date().getTime()
+	var encoder = CreateWebpEncoder(width, height)
 
-  var config = encoder.createConfig()
-  config.method = 0
-  encoder.setConfig(config)
+	var config = encoder.createConfig()
+	config.method = 0
+	encoder.setConfig(config)
 
-  encoder.addFrame(fill(255, 0, 0, 255), 500);
-  encoder.addFrame(fill(0, 255, 0, 255), 500);
-  encoder.addFrame(fill(0, 0, 255, 255), 500);
-  var data = encoder.export();
+	encoder.addFrame(fill(255, 0, 0, 255), 500)
+	encoder.addFrame(fill(0, 255, 0, 255), 500)
+	encoder.addFrame(fill(0, 0, 255, 255), 500)
+	var data = encoder.export()
 
-  var end = new Date().getTime();
-  var time = end - start;
-  console.log("Execution time: " + time + " ms");
+	var end = new Date().getTime()
+	var time = end - start
+	console.log('Execution time: ' + time + ' ms')
 
-  fs.writeFileSync("test.webp", Buffer.from(data));
+	fs.writeFileSync('test.webp', Buffer.from(data))
 
-  console.log("wrote: test.webp");
+	console.log('wrote: test.webp')
 
-  function fill(r, g, b, a) {
-    var data = new Uint8Array(width * height * 4);
-    for (var i = 0; i < data.length; i += 4) {
-      data[i + 0] = r;
-      data[i + 1] = g;
-      data[i + 2] = b;
-      data[i + 3] = a;
-    }
-    return data;
-  }
-});
+	function fill(r, g, b, a) {
+		var data = new Uint8Array(width * height * 4)
+		for (var i = 0; i < data.length; i += 4) {
+			data[i + 0] = r
+			data[i + 1] = g
+			data[i + 2] = b
+			data[i + 3] = a
+		}
+		return data
+	}
+})
