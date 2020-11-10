@@ -28,8 +28,10 @@
     ])
     var output = Alloc(new Uint8Array(frameSize))
     var encoder = Module._WebpEncoder_alloc(width, height)
-    Module._WebpEncoder_add(encoder, data1, 1000)
-    Module._WebpEncoder_add(encoder, data2, 1000)
+    for (var i=0; i<10; i++) {
+      Module._WebpEncoder_add(encoder, data1, 1000)
+      Module._WebpEncoder_add(encoder, data2, 1000)
+    }
     console.log(Read(output, frameSize))
     var output = Module._WebpEncoder_encode(encoder)
     var outputSize = Module._WebpEncoder_size(encoder)

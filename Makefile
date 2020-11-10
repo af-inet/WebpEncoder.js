@@ -2,11 +2,14 @@
 
 default: WebpEncoder.js
 
-WebpEncoder.js WebpEncoder.js.mem: WebpEncoder.c libwebp
-	emcc -O3 -s WASM=0 -s LINKABLE=1 -s EXPORTED_FUNCTIONS='["_WebpEncoder_encode", "_WebpEncoder_alloc", "_WebpEncoder_size", "_WebpEncoder_add", "_WebpEncoder_free"]' \
+WebpEncoder.js WebpEncoder.js.mem: WebpEncoder.cc libwebp
+	emcc \
+		-s WASM=0 -s LINKABLE=1 -s ASSERTIONS=1 \
 		-I. -I./libwebp \
-		WebpEncoder.c \
+		-s MODULARIZE \
+		WebpEncoder.cc \
 		libwebp/src/{dec,dsp,demux,enc,mux,utils}/*.c \
+		--bind \
 		-o build/WebpEncoder.js
 
 clean:
