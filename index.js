@@ -1,4 +1,4 @@
-var M_Promise = require('./build/WebpEncoder.js')()
+var M = require('./build/WebpEncoder.js')
 
 /**
  * @typedef {Object} WebPConfig
@@ -32,7 +32,7 @@ var M_Promise = require('./build/WebpEncoder.js')()
  */
 
 class WebpEncoder {
-	constructor(width, height, M) {
+	constructor(width, height) {
 		if (typeof width !== 'number' || typeof height !== 'number') {
 			throw new Error('width or height arguments are not number')
 		}
@@ -114,24 +114,6 @@ class WebpEncoder {
 	}
 }
 
-/**
- * @param {loadModule~createEncoder}
- */
-function loadModule(M) {
-	/**
-	 * @param {number} width
-	 * @param {number} height
-	 * @returns {WebpEncoder}
-	 */
-	function createEncoder(width, height) {
-		return new WebpEncoder(width, height, M)
-	}
-	return createEncoder
-}
+WebpEncoder.M = M
 
-/**
- * @type {Promise<function(): WebpEncoder>}
- */
-const promise = M_Promise.then(loadModule)
-
-module.exports = promise
+module.exports = WebpEncoder

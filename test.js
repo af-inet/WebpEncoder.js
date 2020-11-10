@@ -1,12 +1,13 @@
 var fs = require('fs')
-var WebpEncoder_Promise = require('./index.js')
+var WebpEncoder = require('./index.js')
 
-WebpEncoder_Promise.then(function (CreateWebpEncoder) {
+WebpEncoder.M.onRuntimeInitialized = () => {
+	// WebpEncoder_Promise.then(function (CreateWebpEncoder) {
 	var width = 100
 	var height = 100
 
 	var start = new Date().getTime()
-	var encoder = CreateWebpEncoder(width, height)
+	var encoder = new WebpEncoder(width, height)
 
 	var config = encoder.createConfig()
 	config.method = 0
@@ -35,4 +36,5 @@ WebpEncoder_Promise.then(function (CreateWebpEncoder) {
 		}
 		return data
 	}
-})
+	// })
+}
