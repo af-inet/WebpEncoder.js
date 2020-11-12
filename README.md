@@ -2,6 +2,14 @@
 
 encode webp with native javascript
 
+## clone
+
+```
+git clone git@github.com:af-inet/WebpEncoder.js.git
+cd WebpEncoder.js
+git submodule update --init --recursive
+```
+
 ## build requirements
 
 must have the emscripten sdk installed to build
