@@ -44,6 +44,12 @@ class WebpEncoder {
 		if (!this._encoder) {
 			throw new Error('WebpEncoder_allocx failed')
 		}
+		var reusuableBufferPtr = this.M._malloc(width * height * 4)
+		if (!reusuableBufferPtr) {
+			throw new Error('_malloc failed')
+		}
+		this._reusuableBufferPtr = reusuableBufferPtr
+		this._reusuableBuffer = new Uint8Array(this.M.HEAPU8.buffer, this._reusuableBufferPtr, width * height * 4)
 	}
 
 	Malloc(data) {
@@ -53,6 +59,10 @@ class WebpEncoder {
 		}
 		this.M.HEAP8.set(data, ptr)
 		return ptr
+	}
+
+	getReusableBuffer() {
+		return this._reusuableBuffer
 	}
 
 	/**
@@ -71,6 +81,20 @@ class WebpEncoder {
 			throw new Error('_WebpEncoder_add failed')
 		}
 	}
+
+	addFrameFromReusableBuffer(duration) {
+		if (typeof duration !== 'number') {
+			throw new Error('duration argument is not a number')
+		}
+		if (this.done) {
+			throw new Error('addFrame() may not be called after export()')
+		}
+		var ok = this.M._WebpEncoder_add(this._encoder, this._reusuableBufferPtr, duration)
+		if (ok != 0) {
+			throw new Error('_WebpEncoder_add failed')
+		}
+	}
+
 
 	addFrame(data, duration) {
 		if (typeof duration !== 'number') {
@@ -109,6 +133,7 @@ class WebpEncoder {
 			this.M.HEAP8.subarray(output, output + outputSize)
 		)
 		this.M._WebpEncoder_free(this._encoder)
+		this.M._free(this._reusuableBufferPtr)
 		this.done = true
 		return data
 	}

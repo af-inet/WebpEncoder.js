@@ -140,7 +140,6 @@ extern "C"
     EMSCRIPTEN_KEEPALIVE
     int WebpEncoder_config(val v, WebPConfig config)
     {
-        fprintf(stdout, "[DEBUG] config.method = %d\n", config.method);
         if (!WebPValidateConfig(&config))
         {
             fprintf(stderr, "WebPValidateConfig failed.\n");
