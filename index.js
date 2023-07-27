@@ -111,7 +111,7 @@ class WebpEncoder {
 	}
 
 	/**
-	 * @param {cvhch} config
+	 * @param {WebPConfig} config
 	 */
 	setConfig(config) {
 		var ok = this.M.WebpEncoder_config(this._encoder, config)
