@@ -1,6 +1,6 @@
 # WebpEncoder.js
 
-encode webp with native javascript
+encode webp with native javascript + wasm
 
 ## clone
 
