@@ -1,18 +1,25 @@
-.PHONY: default
+.PHONY: test clean
 
-default: WebpEncoder.js
+default: ./build/WebpEncoder.js
 
-WebpEncoder.js WebpEncoder.js.mem: WebpEncoder.cc libwebp
+./build/WebpEncoder.js: ./WebpEncoder.cc
 	emcc \
-		-O3 -s WASM=1 -s LINKABLE=1 \
-		-I. -I./libwebp \
-		-s EXPORTED_FUNCTIONS='["_WebpEncoder_encode", "_WebpEncoder_alloc", "_WebpEncoder_size", "_WebpEncoder_add", "_WebpEncoder_free", "_WebpEncoder_config"]' \
+		-s ERROR_ON_UNDEFINED_SYMBOLS=0 \
+		-s MAIN_MODULE=2 \
+		-s WASM=1 \
+		-s EXPORTED_FUNCTIONS=@exported_functions.json \
+		-s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' \
+		-O3 \
+		-lembind \
+		-I. \
+		-I./libwebp \
 		WebpEncoder.cc \
 		libwebp/src/{dec,dsp,demux,enc,mux,utils}/*.c \
-		--bind \
-		--memory-init-file 0 \
-		-o build/WebpEncoder.js
+		-o ./build/WebpEncoder.js
+
+test:
+	node ./test-advanced.js
 
 clean:
-	rm build/WebpEncoder.js
-	rm build/WebpEncoder.js.mem
+	rm -f build/*.js
+	rm -f build/*.wasm
