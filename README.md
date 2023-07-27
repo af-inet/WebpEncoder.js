@@ -34,8 +34,8 @@ function fill(width, height, r, g, b, a) {
 }
 
 WebpEncoder.M.onRuntimeInitialized = () => {
-    const width = 100
-    const height = 100
+    const width = 64
+    const height = 64
     const encoder = new WebpEncoder(width, height)
     // show red, green, blue each for 500ms
     encoder.addFrame(fill(width, height, 255, 0, 0, 255), 500)
