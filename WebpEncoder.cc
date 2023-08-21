@@ -5,6 +5,7 @@
 #include "libwebp/src/webp/encode.h"
 
 using namespace emscripten;
+
 extern "C"
 {
     struct WebpEncoder
@@ -195,5 +196,7 @@ extern "C"
 
         function("CreateWebPConfig", &CreateWebPConfig);
         function("WebpEncoder_config", &WebpEncoder_config);
+        function("WebpEncoder_add", &WebpEncoder_add, allow_raw_pointers());
+
     }
 } // extern "C"

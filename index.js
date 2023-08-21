@@ -1,6 +1,9 @@
 var M = require('./build/WebpEncoder.js')
 
 /**
+ * Webp encoder options.
+ * see: https://github.com/webmproject/libwebp/blob/982c177c8a0d475c7386da9b424b57da7eeabf3a/src/webp/encode.h#L95
+ *
  * @typedef {Object} WebPConfig
  * @property {number} lossless
  * @property {number} quality
@@ -31,15 +34,36 @@ var M = require('./build/WebpEncoder.js')
  * @property {number} use_sharp_yuv
  */
 
+/**
+ * Underlying WASM module.
+ * 
+ * @typedef {Object} Module
+ * @property {function} onRuntimeInitialized called when the wasm module is ready, see https://emscripten.org/docs/api_reference/module.html#Module.onRuntimeInitialized
+ */
+
 class WebpEncoder {
+	/**
+	 * @param {number} width
+	 * @param {number} height
+	 */
 	constructor(width, height) {
 		if (typeof width !== 'number' || typeof height !== 'number') {
 			throw new Error('width or height arguments are not number')
 		}
+		/** @type {Module} */
 		this.M = M
+		/**
+		 * Width of the webp in pixels.
+		 * @type {number}
+		 */
 		this.width = width
+		/**
+		 * Height of the webp in pixels.
+		 * @type {number}
+		 */
 		this.height = height
-		this.done = false
+		// used to track if export has been called
+		this._done = false
 		this._encoder = this.M._WebpEncoder_alloc(width, height)
 		if (!this._encoder) {
 			throw new Error('WebpEncoder_allocx failed')
@@ -48,11 +72,18 @@ class WebpEncoder {
 		if (!reusuableBufferPtr) {
 			throw new Error('_malloc failed')
 		}
+		/**
+		 * @type {number}
+		 */
 		this._reusuableBufferPtr = reusuableBufferPtr
+		/**
+		 * @type {Uint8Array}
+		 */
 		this._reusuableBuffer = new Uint8Array(this.M.HEAPU8.buffer, this._reusuableBufferPtr, width * height * 4)
 	}
 
-	Malloc(data) {
+	// Convenience function to allocate memory and copy data into it.
+	_alloc(data) {
 		var ptr = this.M._malloc(data.length)
 		if (!ptr) {
 			throw new Error('_malloc failed')
@@ -61,11 +92,18 @@ class WebpEncoder {
 		return ptr
 	}
 
+	/**
+	 * Returns a buffer that can be used to pass frame data. The buffer is reused on each call to addFrameFromReusableBuffer.
+	 * @returns {Uint8Array}
+	 */
 	getReusableBuffer() {
 		return this._reusuableBuffer
 	}
 
 	/**
+	 * Create a WebPConfig object, which can be passed to setConfig.
+	 * Use this to set encoder options.
+	 *
 	 * @returns {WebPConfig}
 	 */
 	createConfig() {
@@ -82,11 +120,16 @@ class WebpEncoder {
 		}
 	}
 
+	/**
+	 * add 1 frame to the webp animation, using the buffer returned by getReusableBuffer
+	 *
+	 * @param {number} duration
+	 */
 	addFrameFromReusableBuffer(duration) {
 		if (typeof duration !== 'number') {
 			throw new Error('duration argument is not a number')
 		}
-		if (this.done) {
+		if (this._done) {
 			throw new Error('addFrame() may not be called after export()')
 		}
 		var ok = this.M._WebpEncoder_add(this._encoder, this._reusuableBufferPtr, duration)
@@ -95,12 +138,20 @@ class WebpEncoder {
 		}
 	}
 
-
+	/**
+	 * add 1 frame to the webp animation
+	 *
+	 * NOTE: addFrame allocates memory for the frame, so it is reccomended to use
+	 * getReusableBuffer and addFrameFromReusableBuffer where possible.
+	 *
+	 * @param {Array<number>} array pixel data, RGBA format. array.length must be width * height * 4
+	 * @param {number} duration how long to show this frame in milliseconds
+	 */
 	addFrame(data, duration) {
 		if (typeof duration !== 'number') {
 			throw new Error('duration argument is not a number')
 		}
-		if (this.done) {
+		if (this._done) {
 			throw new Error('addFrame() may not be called after export()')
 		}
 		var expected = this.width * this.height * 4
@@ -112,7 +163,7 @@ class WebpEncoder {
 					expected.toString()
 			)
 		}
-		var ptr = this.Malloc(data)
+		var ptr = this._alloc(data)
 		var ok = this.M._WebpEncoder_add(this._encoder, ptr, duration)
 		this.M._free(ptr)
 		if (ok != 0) {
@@ -120,8 +171,14 @@ class WebpEncoder {
 		}
 	}
 
+	/**
+	 * Encode all frames and return the raw webp data. This also frees the encoder from WASM memory.
+	 * NOTE: export() may only be called once! If you need to export multiple times, create a new WebpEncoder.
+	 *
+	 * @returns {Uint8Array} raw webp data
+	 */
 	export() {
-		if (this.done) {
+		if (this._done) {
 			throw new Error('export() may only be called once')
 		}
 		var output = this.M._WebpEncoder_encode(this._encoder)
@@ -134,11 +191,12 @@ class WebpEncoder {
 		)
 		this.M._WebpEncoder_free(this._encoder)
 		this.M._free(this._reusuableBufferPtr)
-		this.done = true
+		this._done = true
 		return data
 	}
 }
 
-WebpEncoder.M = M
+/** @type {Module} */
+WebpEncoder.M = M // do we need this
 
 module.exports = WebpEncoder

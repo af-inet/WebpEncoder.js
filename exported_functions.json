@@ -1,0 +1,10 @@
+[
+    "_WebpEncoder_encode",
+    "_WebpEncoder_alloc",
+    "_WebpEncoder_size",
+    "_WebpEncoder_add",
+    "_WebpEncoder_free",
+    "_WebpEncoder_config",
+    "_malloc",
+    "_free"
+]
